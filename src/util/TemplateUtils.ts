@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import { existsSync } from "fs";
 import { mkdir, writeFile, readFile, rm } from "fs/promises";
 import { dirname } from "path";
+import Handlebars from "handlebars";
 
 export async function executeTemplate(fPath: string, fTpl: string, args: any): Promise<void> {
     const dir = dirname(fPath);
