@@ -32,12 +32,12 @@ export async function executeTemplate(fPath: string, fTpl: string, args: any): P
 
 export async function executeTemplateIfTargetNotEditedByUser(fPath: string, fTpl: string, args: any): Promise<void> {
     // If the file does not exist yet, it's okay to create it
-    if (!existsSync(fPath)) {
-        console.info(`Processing template ${fTpl}.`)
-        return executeTemplate(fPath, fTpl, args);
-    }
-
     const checksumPath = `${fPath}.checksum`;
+
+    if (!existsSync(fPath)) {
+        console.info(`Writing new file at ${fPath}`)
+        return executeTemplateAndWriteChecksum(fPath, checksumPath, fTpl, args);
+    }
 
     // If there is no checksum, we can assume the file was already created manually by the user
     if (!existsSync(checksumPath)) {
@@ -68,13 +68,22 @@ export async function executeTemplateIfTargetNotEditedByUser(fPath: string, fTpl
         console.info(`Updating file ${fPath} and writing new checksum ${checksumPath}.`)
         await rm(fPath);
         await rm(checksumPath);
-        await executeTemplate(fPath, fTpl, args);
-        fileContent = (await readFile(fPath)).toString();
-        checksum = createHash('md5').update(fileContent).digest("hex");
-        await writeFile(checksumPath, checksum);
+        await executeTemplateAndWriteChecksum(fPath, checksumPath, fTpl, args);
         return Promise.resolve();
     } catch (err) {
         return Promise.reject(err);
     }
 
+}
+
+async function executeTemplateAndWriteChecksum(fPath: string, checksumPath: string, fTpl: string, args: any): Promise<void> {
+    try {
+        await executeTemplate(fPath, fTpl, args);
+        const fileContent = (await readFile(fPath)).toString();
+        const checksum = createHash('md5').update(fileContent).digest("hex");
+        await writeFile(checksumPath, checksum);
+        return Promise.resolve();
+    } catch (err) {
+        return Promise.reject(err);
+    }
 }
