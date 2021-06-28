@@ -1,6 +1,6 @@
 {
   "name": "@chillapi/template",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "ChillAPI Template delegate and utilities",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
